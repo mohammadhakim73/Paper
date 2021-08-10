@@ -18,12 +18,12 @@ bsi = (mpc.branch(:,5))/(2);
 gsi = zeros(size(mpc.branch,1),1);
 
 %% Separating Data
-Vm = n(:,2:15);
-Va = n(:,16:29);
-h = [];
-for i=1:size(Vm,1)
-    h(i,1:80) = hmatrix((1:14)',(1:14)',Ybus,gij,bij,bsi,Vm(i,:)',Va(i,:)',mpc.branch);
-end
+% Vm = n(:,2:15);
+% Va = n(:,16:29);
+% h = [];
+% for i=1:size(Vm,1)
+%     h(i,1:80) = hmatrix((1:14)',(1:14)',Ybus,gij,bij,bsi,Vm(i,:)',Va(i,:)',mpc.branch);
+% end
 
 times.times = n(:,1);
 times.interval = 0.1; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% imp should be 0.02 or 60sec
@@ -35,25 +35,25 @@ State_Estimation_Duration = 300; % 5 min
 Points_in_Window = State_Estimation_Duration/interval;
 
 %% Making Samples
-sample_index = randperm(numel(times.times)-(Points_in_Window-1),10);
-samples = {};
-for i=1:numel(sample_index)
-    samples{i,1} = times.times(sample_index(i):sample_index(i)+4);
+Sample_index = randperm(numel(times.times)-(Points_in_Window-1),30);
+Samples = {};
+for i=1:numel(Sample_index)
+    Samples{i,1} = times.times(Sample_index(i):Sample_index(i)+Points_in_Window-1);
 end
 
 %% Defining Attack Start and Attack Duration
-for i=1:numel(sample_index)
+for i=1:10   % 10 is number of attack samples
     Attack_Start = randperm(Points_in_Window,1);
     Attack_Duration = randperm(Points_in_Window/10,1)*10;
     while (Attack_Duration > Points_in_Window-Attack_Start)
-        Attack_Duration = randperm(Points_in_Window/10,1)*10;
+        Attack_Duration = rsandperm(Points_in_Window/10,1)*10;
     end
     Attack_Times.Attack_Start(i,1)=Attack_Start;
     Attack_Times.Attack_Duration(i,1)=Attack_Duration;
 end
 clear Attack_Start Attack_Duration
 
-%% Attack Injection
+%% Preping before attack injection(Measurements from power system)
 for i=1:numel(Attack_Times.Attack_Start)
 
     first = Attack_Times.Attack_Start(i);
@@ -61,9 +61,15 @@ for i=1:numel(Attack_Times.Attack_Start)
     
     Data.Vm{i,1} = Vm(first:last,:);
     Data.Va{i,1} = Va(first:last,:);
-    Data.h{i,1} = h(first:last,:);
-    
+    Data.h{i,1} = h(first:last,:); 
+    Data.tag{i,1} = afsd;
 end
+clear i first last
+%% Attack Injection
+% Type 1 Attack : Step
+Attacked_sample = randperm(numel(Attack_Times.Attack_Start));   % number of attacked samples in total samples
+
+
 
 
 
