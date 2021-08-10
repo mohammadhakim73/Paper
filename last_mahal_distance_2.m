@@ -3,32 +3,43 @@ close all;
 
 % clear
 % n = load('.\Data60sec.csv');
+Vm = n(:,2:15);
+Va = n(:,16:29);
 
-
-
-
+times.times = n(:,1);
+times.interval = 0.1; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+times.frequency = 1/times.interval;
 
 %% Seperating Data in 5 min intervals
-interval = 60; % interval of sampled data
-State_Estimation_Duration = 5*60; % 5 min
-Points_in_Window = State_Estimation_Duration/60;
+interval = times.interval; % interval of sampled data
+State_Estimation_Duration = 300; % 5 min
+Points_in_Window = State_Estimation_Duration/interval;
 
 %% Making Samples
+sample_index = randperm(numel(times.times)-(Points_in_Window-1),100);
+samples = {};
+for i=1:numel(sample_index)
+    samples{i,1} = times.times(sample_index(i):sample_index(i)+4);
+end
 
-time.times = n(:,1);
-time.interval = 60;
-time.frequency = 1/60;
+%% Defining Attack Start and Attack Duration
+for i=1:numel(sample_index)
+    Attack_Start = randperm(Points_in_Window,1);
+    Attack_Duration = randperm(Points_in_Window/10,1)*10;
+    while (Attack_Duration > Points_in_Window-Attack_Start)
+        Attack_Duration = randperm(Points_in_Window/10,1)*10;
+    end
+    Attack_Times.Attack_Start(i,1)=Attack_Start;
+    Attack_Times.Attack_Duration(i,1)=Attack_Duration;
+end
+clear Attack_Start Attack_Duration
 
 %% Attack Injection
-% Type 1 ) Pulse
-% Type 2 ) Ramp
-% Type 3 ) 
-% Type 4 ) 
-% Type 5 ) 
-% Type 6 )
+% In this section we will use MATPOWER Data models
+AttackedBus = 10;
+NeiAttackedBus = [9,11];
 
-AttackedBus = [10];
-NeiAttackedBus = [];
+
 
 
 
