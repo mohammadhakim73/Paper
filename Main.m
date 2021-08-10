@@ -71,8 +71,7 @@ clear i Attack_Start Attack_Duration Attack_End
 Attack = randperm(numel(Samples),number_of_Attack_samples);
 
 %% Attack Injection
-    %%
-    % raw values of injection equal to zero 
+    %% raw values of injection equal to zero
     for i=1:number_of_samples
         Data.Vm_inj{i,1}(1:Points_in_Window,1:14) = zeros(Points_in_Window,14);
         Data.Va_inj{i,1}(1:Points_in_Window,1:14) = zeros(Points_in_Window,14);
@@ -80,39 +79,28 @@ Attack = randperm(numel(Samples),number_of_Attack_samples);
     end
     
     %% Injection
+    
+    $#$#$#$#$#$#$#$#$#$
     for i=1:numel(Attack)
-        %% Injection
-        Data.Vm_inj{Attack(i),1}(1:Points_in_Window,1:14) = zeros(Points_in_Window,14);
-        Data.Va_inj{Attack(i),1}(1:Points_in_Window,1:14) = zeros(Points_in_Window,14);
-        Data.h_inj{Attack(i),1}(1:Points_in_Window,1:80) = zeros(Points_in_Window,80);
+        %% Creating Injection 
+        for j = START:1:END
+%             Data.Vm_inj{Attack(i),1}(j,1:14) = ...
+%             Data.Va_inj{Attack(i),1}(j,1:14) = ...
+            Data.h_inj{Attack(i),1}(j,1:80) = ...
+                hmatrix((1:14)',(1:14)',Ybus,gij,bij,bsi,Vm(i,:)',Va(i,:)',mpc.branch);
 
-        %% new values
-        START = Attack_Times.Attack_Start(i);
-        END = Attack_Times.Attack_End(i);
+        end
+    end
+    
+    %% Adding Injection
+    for i=1:numel(Attack)
         Data.Vm{Attack(i),1}(:,:) = Data.Vm{Attack(i),1}(:,:) + Data.Vm_inj{Attack(i),1}(:,:);
         Data.Va{Attack(i),1}(:,:) = Data.Va{Attack(i),1}(:,:) + Data.Va_inj{Attack(i),1}(:,:);
         Data.h{Attack(i),1}(:,:) = Data.h{Attack(i),1}(:,:) + Data.h_inj{Attack(i),1}(:,:);
-
         Data.tag{Attack(i),1} = 1; % change to 1 to indicate attack occurence
     end
 clear i
 
-% 
-% for i=1:numel(Attack)
-%     Data.Vm_inj{Attack(i),1}(START:END,1:14) = zeros(numel(START:END),14);
-%     Data.Va_inj{Attack(i),1}(START:END,1:14) = zeros(numel(START:END),14);
-%     Data.h_inj{Attack(i),1}(START:END,1:80) = zeros(numel(START:END),80);
-%     
-%     %% new values
-%     START = Attack_Times.Attack_Start(i);
-%     END = Attack_Times.Attack_End(i);
-%     Data.Vm{Attack(i),1}(START:END,:) = Data.Vm{Attack(i),1}(START:END,:) + Data.Vm_inj{Attack(i),1}(START:END,:);
-%     Data.Va{Attack(i),1}(START:END,:) = Data.Va{Attack(i),1}(START:END,:) + Data.Va_inj{Attack(i),1}(START:END,:);
-%     Data.h{Attack(i),1}(START:END,:) = Data.h{Attack(i),1}(START:END,:) + Data.h_inj{Attack(i),1}(START:END,:);
-% 
-%     Data.tag{Attack(i),1} = 1; % change to 1 to indicate attack occurence
-% end
-% clear i
 
 % 
 % % willNaN = randperm(2868,50);A(willNaN)=NaN; % packet fail
