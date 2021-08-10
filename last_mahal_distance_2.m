@@ -13,6 +13,28 @@ interval = 60; % interval of sampled data
 State_Estimation_Duration = 5*60; % 5 min
 Points_in_Window = State_Estimation_Duration/60;
 
+%% Making Samples
+
+time.times = n(:,1);
+time.interval = 60;
+time.frequency = 1/60;
+
+%% Attack Injection
+% Type 1 ) Pulse
+% Type 2 ) Ramp
+% Type 3 ) 
+% Type 4 ) 
+% Type 5 ) 
+% Type 6 )
+
+AttackedBus = [10];
+NeiAttackedBus = [];
+
+
+
+
+
+
 
 
 % 
