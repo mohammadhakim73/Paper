@@ -3,11 +3,30 @@ close all;
 
 % clear
 % n = load('.\Data60sec.csv');
+
+%% Load mpc
+% In this section we will use MATPOWER Data models
+NB = "14";
+mpc = loadcase('case'+NB);
+mpc.branch(8:10,9) = [1;1;1];
+Ybus=makeYbus(mpc);
+Gij=real(Ybus);
+Bij=imag(Ybus);
+gij = -Gij;
+bij = -Bij;
+bsi = (mpc.branch(:,5))/(2);
+gsi = zeros(size(mpc.branch,1),1);
+
+%% Separating Data
 Vm = n(:,2:15);
 Va = n(:,16:29);
+h = [];
+for i=1:size(Vm,1)
+    h(i,1:80) = hmatrix((1:14)',(1:14)',Ybus,gij,bij,bsi,Vm(i,:)',Va(i,:)',mpc.branch);
+end
 
 times.times = n(:,1);
-times.interval = 0.1; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+times.interval = 0.1; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% imp should be 0.02 or 60sec
 times.frequency = 1/times.interval;
 
 %% Seperating Data in 5 min intervals
@@ -16,7 +35,7 @@ State_Estimation_Duration = 300; % 5 min
 Points_in_Window = State_Estimation_Duration/interval;
 
 %% Making Samples
-sample_index = randperm(numel(times.times)-(Points_in_Window-1),100);
+sample_index = randperm(numel(times.times)-(Points_in_Window-1),10);
 samples = {};
 for i=1:numel(sample_index)
     samples{i,1} = times.times(sample_index(i):sample_index(i)+4);
@@ -35,11 +54,16 @@ end
 clear Attack_Start Attack_Duration
 
 %% Attack Injection
-% In this section we will use MATPOWER Data models
-AttackedBus = 10;
-NeiAttackedBus = [9,11];
+for i=1:numel(Attack_Times.Attack_Start)
 
-
+    first = Attack_Times.Attack_Start(i);
+    last = Attack_Times.Attack_Start(i) + Attack_Times.Attack_Duration(i)-1;
+    
+    Data.Vm{i,1} = Vm(first:last,:);
+    Data.Va{i,1} = Va(first:last,:);
+    Data.h{i,1} = h(first:last,:);
+    
+end
 
 
 
